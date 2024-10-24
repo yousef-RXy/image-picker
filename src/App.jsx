@@ -7,12 +7,15 @@ function App() {
   const inputRef = useRef(null);
   const [isDrag, setIsDrag] = useState(false);
   const [images, setImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   async function submitHandler(e) {
     e.preventDefault();
+    setIsLoading(true);
 
     if (images.length === 0) {
       toast.error('Image list is empty');
+      setIsLoading(false);
       return;
     }
 
@@ -22,6 +25,19 @@ function App() {
     });
     console.log(Object.fromEntries(formData.entries()));
     setImages([]);
+
+    try {
+      const res = await fetch('http://localhost:30000/images', {
+        method: 'post',
+        body: formData,
+      });
+      if (!res.ok) throw new Error('failed to post');
+    } catch (error) {
+      toast.error(error.message);
+      setIsLoading(false);
+      return;
+    }
+    setIsLoading(false);
     toast.success('Done Successfully');
   }
 
@@ -40,16 +56,11 @@ function App() {
     e.preventDefault();
     setIsDrag(false);
     const files = Array.from(e.dataTransfer.files);
-    const filteredFiles = files.filter(file => {
-      console.log(
-        !images.some(i => i.name === file.name),
-        file.type.split('/')[0] === 'image'
-      );
-      return (
+    const filteredFiles = files.filter(
+      file =>
         file.type.split('/')[0] === 'image' &&
         !images.some(i => i.name === file.name)
-      );
-    });
+    );
     setImages(prev => [...prev, ...filteredFiles]);
   }
 
@@ -69,6 +80,7 @@ function App() {
 
   return (
     <>
+      {isLoading && <div className="loading-bar" />}
       <Toaster richColors />
       <form
         className="dorp-area"
@@ -108,6 +120,7 @@ function App() {
           whileHover={{ scale: 1.02, backgroundColor: '#057de8' }}
           transition={{ type: 'spring' }}
           type="submit"
+          disabled={isLoading}
         >
           Upload
         </motion.button>
