@@ -95,6 +95,7 @@ function App() {
           accept="image/*"
           multiple
           ref={inputRef}
+          key={images.length}
         />
         <label
           htmlFor="images"
