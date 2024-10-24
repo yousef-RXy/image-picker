@@ -10,6 +10,7 @@ function ImagePreview({ name, url, deleteImage }) {
       exit={{
         opacity: 0,
         scale: 0,
+        transition: { ease: 'easeIn', duration: 0.3 },
       }}
       transition={{ type: 'spring', stiffness: 200 }}
     >
